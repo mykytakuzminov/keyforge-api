@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+*.egg-info/
+
+# Env
+.env
+
+# Testing & Quality
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+.pre-commit-config.yaml
+
+# IDEs & OS
+.vscode/
+.idea/
+.DS_Store
+
+# Git
+.git
+.gitignore
+.github/
+
+# Docker
+Dockerfile
+docker-compose.yaml
+.dockerignore
+
+# License
+LICENSE
+
+# Tests
+tests/
