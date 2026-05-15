@@ -14,5 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv/ /app/.venv/
 COPY --from=builder /app/src/ /app/src/
+COPY alembic/ ./alembic/
+COPY alembic.ini ./
 
 CMD ["/app/.venv/bin/uvicorn", "keyforge.main:app", "--host", "0.0.0.0", "--port", "8000"]

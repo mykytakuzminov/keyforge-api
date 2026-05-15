@@ -33,3 +33,6 @@ dmypy.json
 .idea/
 .DS_Store
 Thumbs.db
+
+# === Docker ===
+docker-compose.override.yaml
