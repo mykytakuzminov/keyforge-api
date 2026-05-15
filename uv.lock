@@ -323,6 +323,7 @@ dependencies = [
 dev = [
     { name = "hatchling" },
     { name = "mypy" },
+    { name = "mypy-extensions" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -349,6 +350,7 @@ requires-dist = [
 dev = [
     { name = "hatchling", specifier = ">=1.29.0" },
     { name = "mypy", specifier = ">=2.1.0" },
+    { name = "mypy-extensions", specifier = ">=1.1.0" },
     { name = "pre-commit", specifier = ">=4.6.0" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-asyncio", specifier = ">=1.3.0" },
