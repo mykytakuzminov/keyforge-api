@@ -1,9 +1,10 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from alembic import context
 from keyforge.clients.models import Client  # noqa: F401
+from keyforge.core.config import settings
 from keyforge.core.database import Base
 from keyforge.tokens.models import RefreshToken  # noqa: F401
 from keyforge.users.models import User  # noqa: F401
@@ -27,7 +28,7 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-config.set_main_option("sqlalchemy.url", "")
+config.set_main_option("sqlalchemy.url", settings.alembic_database_url)
 
 
 def run_migrations_offline() -> None:
