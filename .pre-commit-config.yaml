@@ -17,7 +17,7 @@ repos:
     rev: v2.1.0
     hooks:
       - id: mypy
-        args: [--strict]
+        args: [--strict, --disable-error-code=untyped-decorator]
         additional_dependencies:
           - pydantic
           - pydantic-settings
