@@ -1,0 +1,25 @@
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field
+
+from keyforge.users.enums import UserRole
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=72)
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class TokenRequest(BaseModel):
+    token: str
+
+
+class TokenPayload(BaseModel):
+    user_id: UUID
+    role: UserRole
