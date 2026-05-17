@@ -27,7 +27,7 @@ def create_access_token(user_id: UUID, role: UserRole) -> str:
 def verify_token(token: str) -> dict[str, object] | None:
     try:
         payload: dict[str, object] = jwt.decode(
-            token, settings.secret_key, algorithm=ALGORITHM
+            token, settings.secret_key, algorithms=ALGORITHM
         )
         return payload
     except JWTError:

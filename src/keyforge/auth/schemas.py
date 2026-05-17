@@ -1,4 +1,8 @@
+from uuid import UUID
+
 from pydantic import BaseModel, EmailStr, Field
+
+from keyforge.users.enums import UserRole
 
 
 class LoginRequest(BaseModel):
@@ -14,3 +18,8 @@ class TokenResponse(BaseModel):
 
 class TokenRequest(BaseModel):
     token: str
+
+
+class TokenPayload(BaseModel):
+    user_id: UUID
+    role: UserRole

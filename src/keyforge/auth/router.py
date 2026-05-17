@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends
 
-from keyforge.auth.dependencies import get_auth_service
-from keyforge.auth.schemas import LoginRequest, TokenRequest, TokenResponse
+from keyforge.auth.dependencies import get_auth_service, get_current_user
+from keyforge.auth.schemas import (
+    LoginRequest,
+    TokenPayload,
+    TokenRequest,
+    TokenResponse,
+)
 from keyforge.auth.service import AuthService
 from keyforge.core.security import create_access_token, create_refresh_token
 from keyforge.users.dependencies import get_user_service
@@ -41,7 +46,9 @@ async def refresh(
 
 @router.post("/logout", status_code=204)
 async def logout(
-    request: TokenRequest, auth_service: AuthService = Depends(get_auth_service)
+    request: TokenRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+    _: TokenPayload = Depends(get_current_user),
 ) -> None:
     await auth_service.logout(request.token)
     return
