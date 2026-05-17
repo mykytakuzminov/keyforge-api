@@ -3,7 +3,8 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from keyforge.core.security import hash_password
+from keyforge.auth.schemas import LoginRequest
+from keyforge.core.security import hash_password, verify_password
 from keyforge.users.models import User
 from keyforge.users.repository import UserRepository
 from keyforge.users.schemas import UserCreate, UserUpdate
@@ -50,3 +51,13 @@ class UserService:
         await self._user_repository.delete(user_id)
         await self._db.commit()
         return
+
+    async def authenticate(self, user_in: LoginRequest) -> User:
+        user = await self._user_repository.get_by_email(user_in.email)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not verify_password(user_in.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not user.is_active:
+            raise HTTPException(status_code=401, detail="Account is disabled")
+        return user
