@@ -21,7 +21,7 @@ async def get_user_by_email(
 async def create_user(
     user_in: UserCreate, service: UserService = Depends(get_user_service)
 ) -> User:
-    return await service.create(user_in)
+    return await service.create(user_in.email, user_in.password)
 
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -35,7 +35,7 @@ async def get_user_by_id(
 async def change_user(
     user_id: UUID, user_in: UserUpdate, service: UserService = Depends(get_user_service)
 ) -> User:
-    return await service.update(user_id, user_in)
+    return await service.update(user_id, user_in.email, user_in.password)
 
 
 @router.delete("/{user_id}", status_code=204)

@@ -16,16 +16,15 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 async def register(
     user_in: UserCreate, service: UserService = Depends(get_user_service)
 ) -> User:
-    return await service.create(user_in)
+    return await service.create(user_in.email, user_in.password)
 
 
 @router.post("/token", response_model=TokenResponse)
 async def login(
     user_in: LoginRequest,
-    user_service: UserService = Depends(get_user_service),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> TokenResponse:
-    user = await user_service.authenticate(user_in)
+    user = await auth_service.authenticate(user_in.email, user_in.password)
     access_token = create_access_token(user.id, user.role)
     refresh_token = create_refresh_token()
     await auth_service.save(refresh_token, user.id)
