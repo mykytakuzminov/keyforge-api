@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,3 +37,15 @@ def get_current_admin(
     if current_user.role != UserRole.admin:
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
+
+
+async def rate_limit(request: Request, redis: Redis = Depends(get_redis)) -> None:
+    ip = request.client.host
+    key = f"rate_limit:{ip}"
+
+    count = await redis.incr(key)
+    if count == 1:
+        await redis.expire(key, 60)
+
+    if count > 5:
+        raise HTTPException(status_code=429, detail="Too many requests")

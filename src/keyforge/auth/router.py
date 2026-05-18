@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from keyforge.auth.dependencies import get_auth_service, get_current_user
+from keyforge.auth.dependencies import get_auth_service, get_current_user, rate_limit
 from keyforge.auth.schemas import (
     LoginRequest,
     TokenPayload,
@@ -22,7 +22,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserResponse)
 async def register(
-    user_in: UserCreate, service: UserService = Depends(get_user_service)
+    user_in: UserCreate,
+    service: UserService = Depends(get_user_service),
+    _: None = Depends(rate_limit),
 ) -> User:
     return await service.create(user_in.email, user_in.password)
 
@@ -31,6 +33,7 @@ async def register(
 async def login(
     user_in: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service),
+    _: None = Depends(rate_limit),
 ) -> TokenResponse:
     user = await auth_service.authenticate(user_in.email, user_in.password)
     access_token = create_access_token(user.id, user.role)
