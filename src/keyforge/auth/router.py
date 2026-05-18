@@ -8,7 +8,10 @@ from keyforge.auth.schemas import (
     TokenResponse,
 )
 from keyforge.auth.service import AuthService
-from keyforge.core.security import create_access_token, generate_secure_token
+from keyforge.core.security import (
+    create_access_token,
+    generate_secure_token,
+)
 from keyforge.users.dependencies import get_user_service
 from keyforge.users.models import User
 from keyforge.users.schemas import UserCreate, UserResponse
@@ -51,3 +54,11 @@ async def logout(
     _: TokenPayload = Depends(get_current_user),
 ) -> None:
     await auth_service.logout(request.token)
+
+
+@router.get("/userinfo", response_model=UserResponse)
+async def userinfo(
+    user_service: UserService = Depends(get_user_service),
+    current_user: TokenPayload = Depends(get_current_user),
+) -> User:
+    return await user_service.get_by_id(current_user.user_id)
