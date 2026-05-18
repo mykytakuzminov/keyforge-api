@@ -6,6 +6,7 @@ from redis.asyncio import Redis
 
 import keyforge.core.redis as redis_module
 from keyforge.auth.router import router as auth_router
+from keyforge.clients.router import router as clients_router
 from keyforge.core.config import settings
 from keyforge.users.router import router as users_router
 
@@ -21,3 +22,4 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(clients_router)
