@@ -46,15 +46,6 @@ async def get_client_by_id(
     return await service.get_by_id(client_id)
 
 
-@router.delete("/{client_id}", status_code=204)
-async def delete_client(
-    client_id: UUID,
-    service: ClientService = Depends(get_client_service),
-    _: TokenPayload = Depends(get_current_admin),
-) -> None:
-    await service.delete(client_id)
-
-
 @router.patch("/{client_id}", response_model=ClientResponse)
 async def update_client(
     client_id: UUID,
@@ -63,3 +54,12 @@ async def update_client(
     _: TokenPayload = Depends(get_current_admin),
 ) -> Client:
     return await service.update(client_id, client_in.name)
+
+
+@router.delete("/{client_id}", status_code=204)
+async def delete_client(
+    client_id: UUID,
+    service: ClientService = Depends(get_client_service),
+    _: TokenPayload = Depends(get_current_admin),
+) -> None:
+    await service.delete(client_id)

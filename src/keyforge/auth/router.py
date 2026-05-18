@@ -8,7 +8,7 @@ from keyforge.auth.schemas import (
     TokenResponse,
 )
 from keyforge.auth.service import AuthService
-from keyforge.core.security import create_access_token, create_refresh_token
+from keyforge.core.security import create_access_token, generate_secure_token
 from keyforge.users.dependencies import get_user_service
 from keyforge.users.models import User
 from keyforge.users.schemas import UserCreate, UserResponse
@@ -31,7 +31,7 @@ async def login(
 ) -> TokenResponse:
     user = await auth_service.authenticate(user_in.email, user_in.password)
     access_token = create_access_token(user.id, user.role)
-    refresh_token = create_refresh_token()
+    refresh_token = generate_secure_token()
     await auth_service.save(refresh_token, user.id)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
@@ -51,4 +51,3 @@ async def logout(
     _: TokenPayload = Depends(get_current_user),
 ) -> None:
     await auth_service.logout(request.token)
-    return

@@ -7,7 +7,7 @@ from keyforge.auth.schemas import TokenPayload
 from keyforge.auth.service import AuthService
 from keyforge.core.database import get_db
 from keyforge.core.redis import get_redis
-from keyforge.core.security import verify_token
+from keyforge.core.security import verify_access_token
 from keyforge.users.enums import UserRole
 
 security = HTTPBearer()
@@ -23,7 +23,7 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> TokenPayload:
     token = credentials.credentials
-    payload = verify_token(token)
+    payload = verify_access_token(token)
     if payload is None:
         raise HTTPException(status_code=401, detail="Invalid token")
     user_id = payload["sub"]

@@ -11,8 +11,7 @@ class TokenRepository:
         await self._redis.set(token, str(user_id), ex=604800)
 
     async def get(self, token: str) -> UUID | None:
-        response = await self._redis.get(token)
-        if response is None:
+        if (response := await self._redis.get(token)) is None:
             return None
         return UUID(response.decode())
 
