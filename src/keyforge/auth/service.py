@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from keyforge.core.security import create_access_token, verify_password
+from keyforge.core.security import create_access_token, verify_hashed_value
 from keyforge.tokens.repository import TokenRepository
 from keyforge.users.models import User
 from keyforge.users.repository import UserRepository
@@ -18,10 +18,9 @@ class AuthService:
         self._token_repository = TokenRepository(redis)
 
     async def authenticate(self, email: str, password: str) -> User:
-        user = await self._user_repository.get_by_email(email)
-        if user is None:
+        if (user := await self._user_repository.get_by_email(email)) is None:
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        if not verify_password(password, user.hashed_password):
+        if not verify_hashed_value(password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         if not user.is_active:
             raise HTTPException(status_code=401, detail="Account is disabled")
@@ -31,11 +30,9 @@ class AuthService:
         await self._token_repository.save(token, user_id)
 
     async def refresh(self, token: str) -> str:
-        user_id = await self._token_repository.get(token)
-        if user_id is None:
+        if (user_id := await self._token_repository.get(token)) is None:
             raise HTTPException(status_code=401, detail="Invalid or expired token")
-        user = await self._user_repository.get_by_id(user_id)
-        if user is None:
+        if (user := await self._user_repository.get_by_id(user_id)) is None:
             raise HTTPException(status_code=404, detail="User not found")
         access_token = create_access_token(user_id, user.role)
         return access_token

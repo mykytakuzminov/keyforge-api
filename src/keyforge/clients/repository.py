@@ -15,22 +15,20 @@ class ClientRepository:
         self._db.add(client)
         return client
 
+    async def get_by_id(self, client_id: UUID) -> Client | None:
+        return await self._db.get(Client, client_id)
+
     async def get_all(self) -> list[Client]:
         result = await self._db.execute(select(Client))
         return list(result.scalars().all())
 
-    async def get_by_id(self, client_id: UUID) -> Client | None:
-        return await self._db.get(Client, client_id)
-
-    async def delete(self, client_id: UUID) -> None:
-        client = await self.get_by_id(client_id)
-        if client is None:
-            return None
-        await self._db.delete(client)
-
     async def update(self, client_id: UUID, name: str) -> Client | None:
-        client = await self.get_by_id(client_id)
-        if client is None:
+        if (client := await self.get_by_id(client_id)) is None:
             return None
         client.name = name
         return client
+
+    async def delete(self, client_id: UUID) -> None:
+        if (client := await self.get_by_id(client_id)) is None:
+            return None
+        await self._db.delete(client)

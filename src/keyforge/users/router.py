@@ -40,7 +40,7 @@ async def get_user_by_id(
 
 
 @router.patch("/{user_id}", response_model=UserResponse)
-async def change_user(
+async def update_user(
     user_id: UUID,
     user_in: UserUpdate,
     service: UserService = Depends(get_user_service),

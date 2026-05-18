@@ -24,7 +24,7 @@ def create_access_token(user_id: UUID, role: UserRole) -> str:
     return str(jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM))
 
 
-def verify_token(token: str) -> dict[str, object] | None:
+def verify_access_token(token: str) -> dict[str, object] | None:
     try:
         payload: dict[str, object] = jwt.decode(
             token, settings.secret_key, algorithms=ALGORITHM
@@ -34,13 +34,13 @@ def verify_token(token: str) -> dict[str, object] | None:
         return None
 
 
-def hash_password(password: str) -> str:
-    return str(pwd_context.hash(password))
+def hash_value(value: str) -> str:
+    return str(pwd_context.hash(value))
 
 
-def verify_password(plain: str, hashed: str) -> bool:
+def verify_hashed_value(plain: str, hashed: str) -> bool:
     return bool(pwd_context.verify(plain, hashed))
 
 
-def create_refresh_token() -> str:
+def generate_secure_token() -> str:
     return secrets.token_urlsafe(32)
