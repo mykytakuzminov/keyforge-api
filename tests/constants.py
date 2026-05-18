@@ -1,0 +1,8 @@
+EMAIL = "email@example.com"
+NEW_EMAIL = "new.email@example.com"
+INVALID_EMAIL = "invalid.email@example.com"
+PASSWORD = "hashedpassword"
+NEW_PASSWORD = "newhashedpassword"
+INVALID_PASSWORD = "invalidpassword"
+TOKEN = "token"
+USER_ID = "550e8400-e29b-41d4-a716-446655440000"
