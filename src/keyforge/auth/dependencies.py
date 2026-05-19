@@ -40,7 +40,7 @@ def get_current_admin(
 
 
 async def rate_limit(request: Request, redis: Redis = Depends(get_redis)) -> None:
-    ip = request.client.host
+    ip = request.client.host if request.client else "unknown"
     key = f"rate_limit:{ip}"
 
     count = await redis.incr(key)
