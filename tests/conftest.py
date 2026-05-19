@@ -1,4 +1,5 @@
 import os
+import platform
 
 import pytest
 from alembic.config import Config
@@ -12,7 +13,7 @@ from alembic import command
 from keyforge.auth.service import AuthService
 from keyforge.users.service import UserService
 
-if "DOCKER_HOST" not in os.environ:
+if platform.system() == "Darwin" and "DOCKER_HOST" not in os.environ:
     os.environ["DOCKER_HOST"] = (
         f"unix://{os.path.expanduser('~')}/.colima/default/docker.sock"
     )
