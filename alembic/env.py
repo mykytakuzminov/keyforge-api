@@ -30,7 +30,7 @@ target_metadata = Base.metadata
 # ... etc.
 url = config.get_main_option("sqlalchemy.url")
 if not url:
-    url = settings.database_url
+    url = settings.alembic_database_url
 config.set_main_option("sqlalchemy.url", url)
 
 def run_migrations_offline() -> None:
