@@ -11,6 +11,10 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-24292e?logo=github-actions&logoColor=fff)
 
 > OAuth2 authentication server built with FastAPI, PostgreSQL, and Redis — featuring role-based access control, token management, and modern async toolchain.
+>
+> 🚀 **Live API Documentation:** Explore and test the API directly on the production server:
+> - **Interactive Swagger UI:** [http://37.27.218.231:8000/docs](http://37.27.218.231:8000/docs)
+> - **ReDoc alternative view:** [http://37.27.218.231:8000/redoc](http://37.27.218.231:8000/redoc)
 
 ## 🗺️ Features
 
