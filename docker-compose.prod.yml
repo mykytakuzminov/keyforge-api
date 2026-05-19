@@ -1,3 +1,0 @@
-services:
-  app:
-    image: ghcr.io/mykytakuzminov/keyforge-api:latest

@@ -35,5 +35,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/keyforge-api
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            docker compose pull
+            docker compose up -d
