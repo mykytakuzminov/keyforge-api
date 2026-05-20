@@ -1,9 +1,7 @@
+from fastapi import Request
 from redis.asyncio import Redis
 
-redis_client: Redis | None = None
 
-
-def get_redis() -> Redis:
-    if redis_client is None:
-        raise RuntimeError("Redis not initialized")
-    return redis_client
+async def get_redis(request: Request) -> Redis:
+    client: Redis = request.app.state.redis_client
+    return client
