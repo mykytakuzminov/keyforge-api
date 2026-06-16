@@ -1,4 +1,4 @@
-name: Deploy
+name: CD
 
 on:
   push:
@@ -39,3 +39,4 @@ jobs:
             git reset --hard origin/main
             docker compose pull
             docker compose up -d --force-recreate
+            docker image prune -f
