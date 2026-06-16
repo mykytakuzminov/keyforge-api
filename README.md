@@ -1,153 +1,165 @@
-# Keyforge API
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-24292e?logo=python&logoColor=fff)
-![FastAPI](https://img.shields.io/badge/FastAPI-24292e?logo=fastapi&logoColor=fff)
-![Pydantic](https://img.shields.io/badge/Pydantic-24292e?logo=pydantic&logoColor=fff)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?logo=postgresql&logoColor=fff)
-![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-24292e?logo=sqlalchemy&logoColor=fff)
-![Alembic](https://img.shields.io/badge/Alembic-24292e?logo=sqlalchemy&logoColor=fff)
-![Redis](https://img.shields.io/badge/Redis-24292e?logo=redis&logoColor=fff)
-![Docker](https://img.shields.io/badge/Docker-24292e?logo=docker&logoColor=fff)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-24292e?logo=github-actions&logoColor=fff)
+# 🔑 Keyforge API
 
-> OAuth2 authentication server built with FastAPI, PostgreSQL, and Redis — featuring role-based access control, token management, and modern async toolchain.
->
-> 🚀 **Live API Documentation:** Explore and test the API directly on the production server:
-> - **Interactive Swagger UI:** [http://37.27.218.231:8000/docs](http://37.27.218.231:8000/docs)
-> - **ReDoc alternative view:** [http://37.27.218.231:8000/redoc](http://37.27.218.231:8000/redoc)
+**OAuth2 authentication server built with Python and FastAPI**
 
-## 🗺️ Features
+JWT-based auth server with role-based access control, client management, and Redis-backed token lifecycle.
 
-| Feature | Description |
+[![CI](https://github.com/mykytakuzminov/keyforge-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mykytakuzminov/keyforge-api/actions/workflows/ci.yml)
+[![Deploy](https://github.com/mykytakuzminov/keyforge-api/actions/workflows/deploy.yml/badge.svg)](https://github.com/mykytakuzminov/keyforge-api/actions/workflows/deploy.yml)
+[![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=fff)](https://python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+[API Docs (Swagger UI)](http://37.27.218.231:8000/docs) · [ReDoc](http://37.27.218.231:8000/redoc)
+
+</div>
+
+---
+
+## Features
+
+- **JWT Authentication** — access token (15 min) + refresh token (7 days) stored in Redis
+- **Role-Based Access Control** — Admin and Member roles with endpoint-level enforcement
+- **Client Management** — full lifecycle for OAuth2 client applications with hashed secrets
+- **Rate Limiting** — per-IP request throttling on auth endpoints via Redis counters
+- **Async Stack** — fully async from FastAPI handlers down to SQLAlchemy and asyncpg
+- **Strict Type Checking** — mypy strict mode across the entire codebase
+- **Integration Tests** — real PostgreSQL and Redis via Testcontainers, auto-cleaned between runs
+- **CI/CD Pipeline** — GitHub Actions: lint → type check → test → Docker build → deploy to Hetzner
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
 |---|---|
-| JWT Authentication | Access token (15 min) + Refresh token (7 days) management |
-| Client Management | Full lifecycle control over OAuth2 client applications |
-| RBAC | Role-based access control (Admin and Member levels) |
-| Security & Safety | Rate limiting on auth endpoints and automatic token invalidation on logout |
-| Storage Strategy | PostgreSQL for persistent data, Redis for storage and quick validation of refresh tokens |
+| Language | Python 3.14 |
+| Framework | FastAPI |
+| Database | PostgreSQL (SQLAlchemy async + asyncpg) |
+| Migrations | Alembic |
+| Cache / Sessions | Redis |
+| Validation | Pydantic v2 |
+| Auth | JWT (python-jose) + bcrypt |
+| Linting | Ruff + mypy (strict) |
+| Testing | pytest + testcontainers |
+| Containerization | Docker (multi-stage) + Docker Compose |
+| CI/CD | GitHub Actions → GHCR → Hetzner VPS |
 
-## 🛠️ Tech Stack
+---
 
-- **[Python](https://www.python.org/)** — Core language with async/await capabilities.
-- **[FastAPI](https://fastapi.tiangolo.com/)** — High-performance async REST API framework.
-- **[Pydantic](https://docs.pydantic.dev/)** — Powerful data parsing, validation, and serialization leveraging Python type hints.
-- **[PostgreSQL](https://www.postgresql.org/)** — Robust relational database system.
-- **[SQLAlchemy](https://www.sqlalchemy.org/)** — Modern async ORM for database interactions.
-- **[Alembic](https://alembic.sqlalchemy.org/)** — Lightweight database migration tool for usage with SQLAlchemy.
-- **[Redis](https://redis.io/)** — In-memory storage for token lifecycle management and rate-limiting.
-- **[Docker](https://www.docker.com/)** — Containerized multi-service environment (App, DB, Cache).
-- **[GitHub Actions](https://github.com/features/actions)** — Automated CI/CD pipeline for testing and linting.
+## Architecture
 
-## 🏗️ Project Architecture & Design Patterns
+The project follows a three-layer architecture per domain module. Dependencies flow downward — handlers call services, services call repositories.
 
-The project is built using a highly scalable, modular **Layered Architecture** focused on separation of concerns and maintainability. It leverages **Dependency Injection (DI)** extensively via FastAPI's built-in dependency system, making the codebase loosely coupled and 100% testable.
+```
+┌──────────────────────────────────────────────┐
+│               FastAPI Routers                │
+│   /auth  /users  /clients                   │
+│   RateLimitDep · AuthDep · AdminDep          │
+└───────────────────┬──────────────────────────┘
+                    │  dependency injection
+┌───────────────────▼──────────────────────────┐
+│                 Services                     │
+│   AuthService · UserService · ClientService  │
+└───────────────────┬──────────────────────────┘
+                    │
+┌───────────────────▼──────────────────────────┐
+│               Repositories                  │
+│   UserRepository (PostgreSQL)                │
+│   ClientRepository (PostgreSQL)              │
+│   TokenRepository (Redis)                   │
+└──────────────────────────────────────────────┘
+```
 
-### 📁 Directory Structure
-- `src/keyforge/` — Root package of the application.
-  - `core/` — Global configurations, database connections (PostgreSQL, Redis), security/hashing helpers, and central initializations.
-  - `auth/`, `users/`, `clients/`, `tokens/` — Independent domain modules (features).
-  - `main.py` — Application entry point and router wiring.
+---
 
-### 🧬 The Three-Layer Pattern (Per Feature)
-Each domain module (e.g., `users`, `clients`) is strictly decoupled into three architectural layers:
+## Database Schema
 
-1. **Router Layer (`routers.py`)** — Handles incoming HTTP requests, input data validation via Pydantic schemas, and defines API endpoints.
-2. **Service Layer (`services.py`)** — Contains core business logic, orchestrates use cases, handles exceptions, and enforces security constraints.
-3. **Repository Layer (`repositories.py`)** — Abstracts data access. Interacts directly with the database via SQLAlchemy async sessions, completely isolating the business logic from raw database queries.
+```mermaid
+erDiagram
+    users {
+        UUID id PK
+        STRING email UK
+        STRING hashed_password
+        ENUM role
+        BOOL is_active
+        DATETIME created_at
+    }
 
-### 💉 Dependency Injection Example
-By decoupling layers, dependencies are explicitly injected downward (`Router -> Service -> Repository`). This design pattern ensures that replacing database engines or mocking components during automated testing requires zero changes to the business logic.
+    clients {
+        UUID id PK
+        STRING name
+        STRING client_secret UK
+        BOOL is_active
+        DATETIME created_at
+    }
 
-## 🚀 Getting Started
+    refresh_tokens {
+        UUID id PK
+        UUID user_id FK
+        UUID token UK
+        DATETIME created_at
+        DATETIME expires_at
+    }
 
-### Prerequisites
+    users ||--o{ refresh_tokens : "owns"
+```
 
-- [Docker](https://www.docker.com/) and Docker Compose
+---
 
-### Quick Start
+## Getting Started
 
-1. Clone the repository and navigate into it:
+**Prerequisites:** Docker, Docker Compose
+
 ```bash
 git clone https://github.com/mykytakuzminov/keyforge-api.git
 cd keyforge-api
-```
-2. Set up environment variables:
-```bash
+
 cp .env.example .env
-```
 
-*(Open `.env` and fill in your custom secret keys and credentials).*
-
-3. Run the complete ecosystem via Docker Compose:
-```bash
 docker compose up -d
-```
 
-4. Run database migrations:
-```bash
 docker compose exec app .venv/bin/alembic upgrade head
 ```
 
-Once started, the interactive API documentation will be live at:
-- **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
-
-## ⚙️ API Endpoints
-
-### Auth
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/auth/register` | Register a new system user | — |
-| `POST` | `/auth/token` | User login (returns JWT access and refresh tokens) | — |
-| `POST` | `/auth/refresh` | Obtain a new access token using a refresh token | — |
-| `POST` | `/auth/logout` | Revoke tokens and blacklist current session | Required |
-| `GET` | `/auth/userinfo` | Fetch current authenticated user profile | Required |
-
-### User Management
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/users/` | List or search users by email | **Admin** |
-| `GET` | `/users/{id}` | Get detailed user profile by ID | **Admin** |
-| `POST` | `/users/` | Create a new user manually | **Admin** |
-| `PATCH` | `/users/{id}` | Partially update user profile | User / Admin |
-| `DELETE` | `/users/{id}` | Soft/Hard delete user account | User / Admin |
-
-### Client Management (OAuth2)
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/clients/` | List all registered client applications | **Admin** |
-| `POST` | `/clients/` | Register a new client application | **Admin** |
-| `GET` | `/clients/{id}` | Get client details by ID | **Admin** |
-| `PATCH` | `/clients/{id}` | Modify client settings or redirect URIs | **Admin** |
-| `DELETE` | `/clients/{id}` | Revoke client application credentials | **Admin** |
-
-## 🔧 Development & Code Quality
-
-This project uses `uv` — an ultra-fast Python package installer and resolver.
-
-### Local Installation
-
-Install dependencies into a managed virtualenv
+API: `http://localhost:8000`
+Swagger: `http://localhost:8000/docs`
 
 ```bash
-uv sync
-```
-
-### Running Quality Checks Locally
-
-To maintain enterprise-grade code quality, the following tools are integrated and enforced via CI:
-
-* **Testing:** Powered by `pytest` with async support.
-```bash
+# Run tests (spins up Testcontainers automatically)
 uv run pytest tests/
 ```
 
-* **Linting & Formatting:** Handled by `ruff` (replaces black, flake8, isort).
-```bash
-uv run ruff check
+---
+
+## CI/CD
+
+```
+Pull Request → dev
+  ├── lint (ruff) · type check (mypy) · test (pytest)
+
+Merge to main
+  ├── Build Docker image (multi-stage)
+  ├── Push to GHCR (:latest + :<sha>)
+  └── Deploy to Hetzner via SSH
 ```
 
-* **Static Type Checking:** Enforced using `mypy` with strict mode features.
-```bash
-uv run mypy src/
-```
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `DATABASE_URL` | Async PostgreSQL URL | required |
+| `ALEMBIC_DATABASE_URL` | Sync PostgreSQL URL (migrations) | required |
+| `REDIS_URL` | Redis connection URL | required |
+| `SECRET_KEY` | JWT signing secret | required |
+
+See [`.env.example`](./.env.example) for the full list.
+
+---
+
+## License
+
+[MIT](./LICENSE)
