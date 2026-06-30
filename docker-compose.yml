@@ -1,6 +1,7 @@
 services:
-  app:
+  keyforge-api-app:
     image: ghcr.io/mykytakuzminov/keyforge-api:latest
+    container_name: keyforge-api-app
     ports:
       - "8000:8000"
     environment:
@@ -12,27 +13,43 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
-      db:
+      keyforge-api-postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
+      keyforge-api-redis:
+        condition: service_healthy
+    restart: unless-stopped
 
-  db:
+  keyforge-api-postgres:
     image: postgres:18-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql
+    container_name: keyforge-api-postgres
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
-  redis:
+  keyforge-api-redis:
     image: redis:8-alpine
+    container_name: keyforge-api-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  redis_data:
